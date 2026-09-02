@@ -1,2 +1,2 @@
 # FileSecureCrypt
-A browser-based application that lets users secure their images or documents through a file lock encryption feature. 
+A browser-based application that lets users convert file types to other types (e.g. .docx to .pdf) while also having the ability to secure their images or documents with a file lock encryption feature. 
