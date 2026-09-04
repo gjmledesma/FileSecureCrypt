@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - FileSecureCrypt</title>
+</head>
+<body>
+    <header>
+        <h1>FileSecureCrypt</h1>
+    </header>
+
+    <nav>
+        <a href="#convert">Convert File</a>
+        <a href="#lock">Lock File</a>
+        <a href="#remove-lock">Remove Lock</a>
+        <a href="#encrypt">Encrypt File</a>
+        <a href="#decrypt">Decrypt File</a>
+        <a href="aboutme.html">About Me</a>
+    </nav>
+
+    <main>
+        <section id="convert">
+            <p>Welcome to FileSecureCrypt, your trusted solution for secure file convertion, locking/unlocking, encryption, and decryption of your files. Protect your sensitive data with tightened security in a user-friendly web interface.</p>
+
+            <h2>Convert File</h2>
+            <p>
+                Use our tool to convert your files with ease. Simply upload your file and download the converted version.
+            </p>
+
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <label for="file">Choose a file you desire to convert to another format:</label>
+                <input type="file" id="file" name="file" required>
+                <br><br>
+                <label for="conversion">Select conversion method:</label>
+                <select id="conversion" name="conversion">
+                    <option value="pdf">PDF</option>
+                    <option value="img">Image</option>
+                    <option value="docx">DOCX</option>
+                    <option value="xlsx">XLSX</option>
+                </select>
+                <br><br>
+                <button type="submit">Convert File</button>
+            </form>
+
+            <p>Preview of file uploaded:</p>
+            <div id="file-preview">
+                <!-- File preview will be displayed here after upload -->
+            </div>
+        </section>
+    </main>
+
+    <main>
+        <section id="lock">
+            <h2>Lock File</h2>
+            <p>
+                Protect your files with our secure locking feature. Upload your file and set a password to lock it.
+            </p>
+
+            <form action="/encrypt" method="post" enctype="multipart/form-data">
+                <label for="secure-file">Choose a file to lock:</label>
+                <input type="file" id="secure-file" name="secure-file" required>
+                <br><br>
+                <label for="password">Set a password:</label>
+                <input type="password" id="password" name="password" required>
+                <br><br>
+                <label for="verify-password">Verify password:</label>
+                <input type="password" id="verify-password" name="verify-password" required>
+                <br><br>
+                <button type="submit">Lock File</button>
+            </form>
+        </section>
+
+            <p>Preview of file uploaded:</p>
+            <div id="file-preview">
+                <!-- File preview will be displayed here after upload -->
+            </div>
+
+    </main>
+
+    <main>
+        <section id="remove-lock">
+            <h2>Remove Lock from File</h2>
+            <p>
+                Remove the lock from your files with the unlock feature. Upload your locked file and enter the password to unlock it.
+            </p>
+
+            <form action="/remove-lock" method="post" enctype="multipart/form-data">
+                <label for="secure-file">Choose a file to unlock:</label>
+                <input type="file" id="secure-file" name="secure-file" required>
+                <br><br>
+                <label for="password">Enter the password:</label>
+                <input type="password" id="password" name="password" required>
+                <br><br>
+                <button type="submit">Unlock File</button>
+            </form>
+
+            <p>Preview of file uploaded:</p>
+            <div id="file-preview">
+                <!-- File preview will be displayed here after upload -->
+            </div>
+
+        </section>
+    </main>
+
+    <main>
+        <section id="encrypt">
+            <h2>Encrypt File</h2>
+            <p>
+                Encrypt your files securely. Upload your file and set a password to encrypt it.
+            </p>
+
+            <form action="/encrypt" method="post" enctype="multipart/form-data">
+                <label for="secure-file">Choose a file to encrypt:</label>
+                <input type="file" id="secure-file" name="secure-file" required>
+                <br><br>
+                <label for="password">Set a password:</label>
+                <input type="password" id="password" name="password" required>
+                <br><br>
+                <label for="verify-password">Verify password:</label>
+                <input type="password" id="verify-password" name="verify-password" required>
+                <br><br>
+                <button type="submit">Encrypt File</button>
+            </form>
+
+            <p>Preview of file uploaded:</p>
+            <div id="file-preview">
+                <!-- File preview will be displayed here after upload -->
+            </div>
+
+        </section>
+    </main>
+
+    <main>
+        <section id="decrypt">
+            <h2>Decrypt File</h2>
+            <p>
+                Decrypt your files securely. Upload your encrypted file and enter the password to decrypt it.
+            </p>
+
+            <form action="/decrypt" method="post" enctype="multipart/form-data">
+                <label for="secure-file">Choose a file to decrypt:</label>
+                <input type="file" id="secure-file" name="secure-file" required>
+                <br><br>
+                <label for="password">Enter the password:</label>
+                <input type="password" id="password" name="password" required>
+                <br><br>
+                <button type="submit">Decrypt File</button>
+            </form>
+
+            <p>Preview of file uploaded:</p>
+            <div id="file-preview">
+                <!-- File preview will be displayed here after upload -->
+            </div>
+
+        </section>
+
+    <section>
+        <hr>
+        <footer>
+            <p>&copy; 2026 FileSecureCrypt. Made by Gabriel Ledesma.</p>
+        </footer>
+    </section>
+
+</body>
+</html>
