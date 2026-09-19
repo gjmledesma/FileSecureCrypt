@@ -6,6 +6,7 @@
     <title>FileSecureCrypt</title>
     <meta name="description" content="Convert, lock, and encrypt your files in the browser with FileSecureCrypt.">
     <link rel="stylesheet" href="css/styles.css">
+    <script language="javascript" type="text/javascript" src="javascript/script.js" defer></script>
 </head>
 
 <body>
@@ -16,64 +17,15 @@
 
     <nav id="nav" aria-label="Primary">
         <a href="#heading">Home</a>
-        <a href="#convert">Convert File</a>
         <a href="#lock">Lock File</a>
-        <a href="#remove-lock">Remove Lock</a>
-        <a href="#encrypt">Encrypt File</a>
-        <a href="#decrypt">Decrypt File</a>
+        <a href="#remove-lock">Remove Lock from File</a>
         <a href="about.html">About</a>
     </nav>
 
     <main id="main-content">
         <br>
-        <section id="convert" class="tool-panel" aria-labelledby="convert-heading">
-            <h2 id="convert-heading">Convert File</h2>
-
-            <p>
-                Use this tool to convert your files with ease. Simply upload your file and download the converted version.
-            </p>
-
-            <form id="convert-form" action="/upload" method="post" enctype="multipart/form-data">
-                <div class="form-field">
-                    <label for="convert-file">Choose a file you desire to convert to another format</label>
-                    <input
-                        type="file"
-                        id="convert-file"
-                        name="file"
-                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                        aria-describedby="convert-file-hint"
-                        required>
-                    <small id="convert-file-hint" class="hint">Accepted format: PDF, DOCX, XLSX, JPG, or PNG. Max 25&nbsp;MB.</small>
-                </div>
-
-                <div class="form-field">
-                    <label for="conversion">Convert to</label>
-                    <select id="conversion" name="conversion" required>
-                        <option value="" disabled selected>Select a target format&hellip;</option>
-                        <option value="pdf">PDF</option>
-                        <option value="imgj">JPG (image)</option>
-                        <option value="imgp">PNG (image)</option>
-                        <option value="docx">DOCX</option>
-                        <option value="xlsx">XLSX</option>
-                    </select>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit">Convert File</button>
-                    <button type="reset" class="secondary">Clear</button>
-                </div>
-            </form>
-
-            <div class="preview-area">
-                <h3 class="preview-label">File preview</h3>
-                <div id="convert-preview" class="file-preview" aria-live="polite">
-                    <p class="empty-state">No file selected yet.</p>
-                </div>
-            </div>
-        </section>
-
         <section id="lock" class="tool-panel" aria-labelledby="lock-heading">
-            <h2 id="lock-heading">Lock File</h2>
+            <h2 id="lock-heading">Lock / Encrypt File</h2>
             <p>
                 Protect your files with the secure locking feature. Upload your file and set a password to lock it.
             </p>
@@ -82,6 +34,8 @@
                 <div class="form-field">
                     <label for="lock-file">Choose a file to lock</label>
                     <input type="file" id="lock-file" name="secure-file" required>
+                    <br>
+                    <small class="hint">Note: Locking a file will make it inaccessible without the password. <br> Supported format: PNG, JPG, PDF, DOCX, XLSX </small>
                 </div>
 
                 <div class="form-field">
@@ -90,11 +44,11 @@
                         type="password"
                         id="lock-password"
                         name="password"
+                        placeholder="Enter at least 8 characters."
                         minlength="8"
                         autocomplete="new-password"
                         aria-describedby="lock-password-hint"
                         required>
-                    <small id="lock-password-hint" class="hint">At least 8 characters.</small>
                 </div>
 
                 <div class="form-field">
@@ -103,16 +57,23 @@
                         type="password"
                         id="lock-verify-password"
                         name="verify-password"
+                        placeholder="Input the same password again."
                         minlength="8"
                         autocomplete="new-password"
+                        aria-describedby="lock-verify-password-error"
                         required>
+                    <small id="lock-verify-password-error" class="field-error" role="alert" hidden>Passwords do not match.</small>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit">Lock File</button>
+                    <button id="LockButton" type="submit">Lock File</button>
                     <button type="reset" class="secondary">Clear</button>
                 </div>
             </form>
+
+            <div class="FileStatusMessage">
+                <p id="lockMessage" role="status">Status: Awaiting lock...</p>
+            </div>
 
             <div class="preview-area">
                 <h3 class="preview-label">File preview</h3>
@@ -123,7 +84,7 @@
         </section>
 
         <section id="remove-lock" class="tool-panel" aria-labelledby="remove-lock-heading">
-            <h2 id="remove-lock-heading">Remove Lock from File</h2>
+            <h2 id="remove-lock-heading">Remove Lock / Decrypt File</h2>
             <p>
                 Remove the lock from your files with the unlock feature. Upload your locked file and enter the password to unlock it.
             </p>
@@ -131,7 +92,8 @@
             <form id="remove-lock-form" action="/remove-lock" method="post" enctype="multipart/form-data">
                 <div class="form-field">
                     <label for="unlock-file">Choose a file to unlock</label>
-                    <input type="file" id="unlock-file" name="secure-file" required>
+                    <input type="file" id="unlock-file" name="secure-file" accept=".locked" required>
+                    <small class="hint">Supported format: .locked file</small>
                 </div>
 
                 <div class="form-field">
@@ -140,105 +102,24 @@
                         type="password"
                         id="unlock-password"
                         name="password"
+                        placeholder="Enter password used to lock the file."
                         autocomplete="current-password"
                         required>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit">Unlock File</button>
+                    <button id="UnlockButton" type="submit">Unlock File</button>
                     <button type="reset" class="secondary">Clear</button>
                 </div>
             </form>
+
+            <div class="FileStatusMessage">
+                <p id="unlockMessage" role="status">Status: Awaiting unlock...</p>
+            </div>
 
             <div class="preview-area">
                 <h3 class="preview-label">File preview</h3>
                 <div id="unlock-preview" class="file-preview" aria-live="polite">
-                    <p class="empty-state">No file selected yet.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="encrypt" class="tool-panel" aria-labelledby="encrypt-heading">
-            <h2 id="encrypt-heading">Encrypt File</h2>
-            <p>
-                Encrypt your files securely. Upload your file and set a password to encrypt it.
-            </p>
-
-            <form id="encrypt-form" action="/encrypt" method="post" enctype="multipart/form-data">
-                <div class="form-field">
-                    <label for="encrypt-file">Choose a file to encrypt</label>
-                    <input type="file" id="encrypt-file" name="secure-file" required>
-                </div>
-
-                <div class="form-field">
-                    <label for="encrypt-password">Set a password</label>
-                    <input
-                        type="password"
-                        id="encrypt-password"
-                        name="password"
-                        minlength="8"
-                        autocomplete="new-password"
-                        aria-describedby="encrypt-password-hint"
-                        required>
-                    <small id="encrypt-password-hint" class="hint">At least 8 characters.</small>
-                </div>
-
-                <div class="form-field">
-                    <label for="encrypt-verify-password">Verify password</label>
-                    <input
-                        type="password"
-                        id="encrypt-verify-password"
-                        name="verify-password"
-                        minlength="8"
-                        autocomplete="new-password"
-                        required>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit">Encrypt File</button>
-                    <button type="reset" class="secondary">Clear</button>
-                </div>
-            </form>
-
-            <div class="preview-area">
-                <h3 class="preview-label">File preview</h3>
-                <div id="encrypt-preview" class="file-preview" aria-live="polite">
-                    <p class="empty-state">No file selected yet.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="decrypt" class="tool-panel" aria-labelledby="decrypt-heading">
-            <h2 id="decrypt-heading">Decrypt File</h2>
-            <p>
-                Decrypt your files securely. Upload your encrypted file and enter the password to decrypt it.
-            </p>
-
-            <form id="decrypt-form" action="/decrypt" method="post" enctype="multipart/form-data">
-                <div class="form-field">
-                    <label for="decrypt-file">Choose a file to decrypt</label>
-                    <input type="file" id="decrypt-file" name="secure-file" required>
-                </div>
-
-                <div class="form-field">
-                    <label for="decrypt-password">Enter the password</label>
-                    <input
-                        type="password"
-                        id="decrypt-password"
-                        name="password"
-                        autocomplete="current-password"
-                        required>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit">Decrypt File</button>
-                    <button type="reset" class="secondary">Clear</button>
-                </div>
-            </form>
-
-            <div class="preview-area">
-                <h3 class="preview-label">File preview</h3>
-                <div id="decrypt-preview" class="file-preview" aria-live="polite">
                     <p class="empty-state">No file selected yet.</p>
                 </div>
             </div>
