@@ -11,123 +11,110 @@
 
 <body>
     <header class="site-header">
-        <h1 id="heading">FileSecureCrypt</h1>
-        <p class="tagline">Protect your sensitive files with tightened security, right in the browser.</p>
-    </header>
+        <div class="site-header-inner">
+            <div class="brand">
+                <h1 id="heading">FileSecureCrypt</h1>
+                <p class="tagline">Protect your sensitive files with tightened locks</p>
+            </div>
 
-    <nav id="nav" aria-label="Primary">
-        <a href="#heading">Home</a>
-        <a href="#lock">Lock File</a>
-        <a href="#remove-lock">Remove Lock from File</a>
-        <a href="about.html">About</a>
-    </nav>
+            <nav id="nav" aria-label="Primary">
+                <a href="#heading">Home</a>
+                <a href="#lock">Lock File</a>
+                <a href="#remove-lock">Remove Lock from File</a>
+                <a href="about.html">About</a>
+            </nav>
+        </div>
+    </header>
 
     <main id="main-content">
         <br>
-        <section id="lock" class="tool-panel" aria-labelledby="lock-heading">
-            <h2 id="lock-heading">Lock / Encrypt File</h2>
-            <p>
-                Protect your files with the secure locking feature. Upload your file and set a password to lock it.
-            </p>
+        <div class="panel-pair">
+            <section id="lock" class="tool-panel" aria-labelledby="lock-heading">
+                <h2 id="lock-heading">Lock File</h2>
+                <p>
+                    Protect your files with the secure locking feature. Upload your file and set a password to lock it.
+                </p>
 
-            <form id="lock-form" action="/lock" method="post" enctype="multipart/form-data">
-                <div class="form-field">
-                    <label for="lock-file">Choose a file to lock</label>
-                    <input type="file" id="lock-file" name="secure-file" required>
-                    <br>
-                    <small class="hint">Note: Locking a file will make it inaccessible without the password. <br> Supported format: PNG, JPG, PDF, DOCX, XLSX </small>
+                <form id="lock-form" action="/lock" method="post" enctype="multipart/form-data">
+                    <div class="form-field">
+                        <label for="lock-file">Choose a file to lock</label>
+                        <input type="file" id="lock-file" name="secure-file" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="lock-password">Set a password</label>
+                        <input
+                            type="password"
+                            id="lock-password"
+                            name="password"
+                            minlength="8"
+                            autocomplete="new-password"
+                            aria-describedby="lock-password-hint"
+                            required>
+                        <small id="lock-password-hint" class="hint">At least 8 characters.</small>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="lock-verify-password">Verify password</label>
+                        <input
+                            type="password"
+                            id="lock-verify-password"
+                            name="verify-password"
+                            minlength="8"
+                            autocomplete="new-password"
+                            aria-describedby="lock-verify-password-error"
+                            required>
+                        <small id="lock-verify-password-error" class="field-error" role="alert" hidden>Passwords do not match.</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="LockButton" type="submit">Lock File</button>
+                        <button id="LockClearButton" type="reset" class="secondary">Clear</button>
+                    </div>
+                </form>
+
+                <div class="FileStatusMessage">
+                    <p id="lockMessage" role="status">Status: Awaiting lock...</p>
                 </div>
+            </section>
 
-                <div class="form-field">
-                    <label for="lock-password">Set a password</label>
-                    <input
-                        type="password"
-                        id="lock-password"
-                        name="password"
-                        placeholder="Enter at least 8 characters."
-                        minlength="8"
-                        autocomplete="new-password"
-                        aria-describedby="lock-password-hint"
-                        required>
+            <section id="remove-lock" class="tool-panel" aria-labelledby="remove-lock-heading">
+                <h2 id="remove-lock-heading">Remove Lock from File</h2>
+                <p>
+                    Remove the lock from your files with the unlock feature. Upload your locked file and enter the password to unlock it.
+                </p>
+
+                <form id="remove-lock-form" action="/remove-lock" method="post" enctype="multipart/form-data">
+                    <div class="form-field">
+                        <label for="unlock-file">Choose a file to unlock</label>
+                        <input type="file" id="unlock-file" name="secure-file" accept=".locked" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="unlock-password">Enter the password</label>
+                        <input
+                            type="password"
+                            id="unlock-password"
+                            name="password"
+                            autocomplete="current-password"
+                            required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="UnlockButton" type="submit">Unlock File</button>
+                        <button id="UnlockClearButton" type="reset" class="secondary">Clear</button>
+                    </div>
+                </form>
+
+                <div class="FileStatusMessage">
+                    <p id="unlockMessage" role="status">Status: Awaiting unlock...</p>
                 </div>
-
-                <div class="form-field">
-                    <label for="lock-verify-password">Verify password</label>
-                    <input
-                        type="password"
-                        id="lock-verify-password"
-                        name="verify-password"
-                        placeholder="Input the same password again."
-                        minlength="8"
-                        autocomplete="new-password"
-                        aria-describedby="lock-verify-password-error"
-                        required>
-                    <small id="lock-verify-password-error" class="field-error" role="alert" hidden>Passwords do not match.</small>
-                </div>
-
-                <div class="form-actions">
-                    <button id="LockButton" type="submit">Lock File</button>
-                    <button type="reset" class="secondary">Clear</button>
-                </div>
-            </form>
-
-            <div class="FileStatusMessage">
-                <p id="lockMessage" role="status">Status: Awaiting lock...</p>
-            </div>
-
-            <div class="preview-area">
-                <h3 class="preview-label">File preview</h3>
-                <div id="lock-preview" class="file-preview" aria-live="polite">
-                    <p class="empty-state">No file selected yet.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="remove-lock" class="tool-panel" aria-labelledby="remove-lock-heading">
-            <h2 id="remove-lock-heading">Remove Lock / Decrypt File</h2>
-            <p>
-                Remove the lock from your files with the unlock feature. Upload your locked file and enter the password to unlock it.
-            </p>
-
-            <form id="remove-lock-form" action="/remove-lock" method="post" enctype="multipart/form-data">
-                <div class="form-field">
-                    <label for="unlock-file">Choose a file to unlock</label>
-                    <input type="file" id="unlock-file" name="secure-file" accept=".locked" required>
-                    <small class="hint">Supported format: .locked file</small>
-                </div>
-
-                <div class="form-field">
-                    <label for="unlock-password">Enter the password</label>
-                    <input
-                        type="password"
-                        id="unlock-password"
-                        name="password"
-                        placeholder="Enter password used to lock the file."
-                        autocomplete="current-password"
-                        required>
-                </div>
-
-                <div class="form-actions">
-                    <button id="UnlockButton" type="submit">Unlock File</button>
-                    <button type="reset" class="secondary">Clear</button>
-                </div>
-            </form>
-
-            <div class="FileStatusMessage">
-                <p id="unlockMessage" role="status">Status: Awaiting unlock...</p>
-            </div>
-
-            <div class="preview-area">
-                <h3 class="preview-label">File preview</h3>
-                <div id="unlock-preview" class="file-preview" aria-live="polite">
-                    <p class="empty-state">No file selected yet.</p>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
 
     <footer>
-        <p>&copy; 2026 FileSecureCrypt. Made by Group 27 H3101.</p>
+        <p>&copy; 2026 FileSecureCrypt. Made by Group 27 H3101</p>
     </footer>
 </body>
 </html>

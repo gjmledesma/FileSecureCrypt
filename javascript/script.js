@@ -1,241 +1,68 @@
-// Section to handle button clicks and update the Status message per feature in the homepage.
+// Section to handle button clicks
+// and update the Status message per feature in the homepage.
 
-// Lock File section 
+// Clicking "Lock File" button in Lock File feature
 document.getElementById("LockButton").onclick = function() {
     document.getElementById("lockMessage").textContent =
         "Status: File locking process shall start once all fields are done. Please wait for the process to complete.";
 }
 
-// Remove Lock from File section
+// Clicking "Remove Lock" button in Remove Lock from File feature
 document.getElementById("UnlockButton").onclick = function() {
     document.getElementById("unlockMessage").textContent =
         "Status: File unlocking process shall start once all fields are done. Please wait for the process to complete.";
 }
 
-// Client-side file locking / unlocking logic with the use of the native Web Crypto API. 
-// This is a secure way to encrypt and decrypt files in the browser without sending any data to a server.
-
-function bufferToBase64(buffer) {
-    let binary = "";
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
+// Clicking "Clear" button in Lock File feature
+document.getElementById("LockClearButton").onclick = function() {
+    document.getElementById("lockMessage").textContent =
+        "Status: Awaiting lock. Proceed in selecting a file and entering a password to lock the file.";
 }
 
-function base64ToBuffer(base64) {
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes.buffer;
+// Clicking "Clear" button in Remove Lock from File feature
+document.getElementById("UnlockClearButton").onclick = function() {
+    document.getElementById("unlockMessage").textContent =
+        "Status: Awaiting unlock. Proceed in selecting a .locked file and entering the password to unlock the file.";
 }
 
-// Key derivation 
-
-// Turns a plain-text password into an AES-GCM CryptoKey.
-// The same password + same salt will always produce the same key,
-// which is how we're able to re-derive it later to unlock the file.
-async function deriveKeyFromPassword(password, saltBytes) {
-    const encoder = new TextEncoder();
-
-    const passwordKey = await crypto.subtle.importKey(
-        "raw",
-        encoder.encode(password),
-        "PBKDF2",
-        false,
-        ["deriveKey"]
-    );
-
-    return crypto.subtle.deriveKey(
-        {
-            name: "PBKDF2",
-            salt: saltBytes,
-            iterations: 250000,
-            hash: "SHA-256"
-        },
-        passwordKey,
-        { name: "AES-GCM", length: 256 },
-        false,
-        ["encrypt", "decrypt"]
-    );
-}
-
-// Lock (encrypt) 
-
-async function lockFile(file, password) {
-    const fileBuffer = await file.arrayBuffer();
-
-    // Random salt (for key derivation) and IV (for the cipher) — both
-    // need to be unique per file, and both are safe to store alongside
-    // the ciphertext (they aren't secret, only the password is).
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-
-    const key = await deriveKeyFromPassword(password, salt);
-
-    const encryptedBuffer = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv: iv },
-        key,
-        fileBuffer
-    );
-
-    const lockedPayload = {
-        format: "FileSecureCrypt-locked",
-        version: 1,
-        originalName: file.name,
-        originalType: file.type || "application/octet-stream",
-        salt: bufferToBase64(salt),
-        iv: bufferToBase64(iv),
-        data: bufferToBase64(encryptedBuffer)
-    };
-
-    return new Blob([JSON.stringify(lockedPayload)], { type: "application/json" });
-}
-
-// Unlock (decrypt)
-
-async function unlockFile(file, password) {
-    const text = await file.text();
-
-    let payload;
-    try {
-        payload = JSON.parse(text);
-    } catch (err) {
-        throw new Error("That doesn't look like a valid .locked file.");
-    }
-
-    if (!payload || payload.format !== "FileSecureCrypt-locked" || !payload.salt || !payload.iv || !payload.data) {
-        throw new Error("That doesn't look like a valid .locked file.");
-    }
-
-    const salt = new Uint8Array(base64ToBuffer(payload.salt));
-    const iv = new Uint8Array(base64ToBuffer(payload.iv));
-    const encryptedBuffer = base64ToBuffer(payload.data);
-
-    const key = await deriveKeyFromPassword(password, salt);
-
-    let decryptedBuffer;
-    try {
-        decryptedBuffer = await crypto.subtle.decrypt(
-            { name: "AES-GCM", iv: iv },
-            key,
-            encryptedBuffer
-        );
-    } catch (err) {
-        throw new Error("Incorrect password, or the file is corrupted.");
-    }
-
-    return {
-        blob: new Blob([decryptedBuffer], { type: payload.originalType || "application/octet-stream" }),
-        name: payload.originalName || "unlocked-file"
-    };
-}
-
-// Small UI helpers 
-
-function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-}
-
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-}
-
-function renderFilePreview(previewEl, file, resultNote) {
-    previewEl.innerHTML = "";
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "file-info";
-
-    if (file.type && file.type.startsWith("image/")) {
-        const img = document.createElement("img");
-        img.className = "preview-thumb";
-        img.src = URL.createObjectURL(file);
-        img.alt = file.name;
-        wrapper.appendChild(img);
-    }
-
-    const name = document.createElement("p");
-    name.className = "file-name";
-    name.textContent = file.name;
-    wrapper.appendChild(name);
-
-    const meta = document.createElement("p");
-    meta.className = "file-meta";
-    meta.textContent = formatFileSize(file.size) + (file.type ? " · " + file.type : "");
-    wrapper.appendChild(meta);
-
-    if (resultNote) {
-        const note = document.createElement("p");
-        note.className = "lock-result";
-        note.textContent = resultNote;
-        wrapper.appendChild(note);
-    }
-
-    previewEl.appendChild(wrapper);
-}
-
-function clearPreview(previewEl) {
-    previewEl.innerHTML = '<p class="empty-state">No file selected yet.</p>';
-}
-
-function setStatus(el, text, statusType) {
-    el.textContent = "Status: " + text;
-    el.classList.remove("status-success", "status-error");
-    if (statusType === "success") el.classList.add("status-success");
-    if (statusType === "error") el.classList.add("status-error");
-}
+// Expanded status message updates for the Lock File and Remove Lock from File features,
+// to provide more clarity to the user about the process of each including expected and invalid outcomes.
+//
+// FULL DISCLOSURE: This portion of the JavaScript code starting below
+// was written with MINOR assistance by Anthropic's Claude AI,
+// The code was then reviewed, modified, and tested by the group to
+// ensure it reflects the correct update messages to the website.
 
 // Lock File section
 
-const lockForm = document.getElementById("lock-form");
-const lockFileInput = document.getElementById("lock-file");
-const lockPasswordInput = document.getElementById("lock-password");
-const lockVerifyInput = document.getElementById("lock-verify-password");
-const lockVerifyError = document.getElementById("lock-verify-password-error");
-const lockMessage = document.getElementById("lockMessage");
-const lockPreview = document.getElementById("lock-preview");
-const lockButton = document.getElementById("LockButton");
+var lockForm = document.getElementById("lock-form");
+var lockFileInput = document.getElementById("lock-file");
+var lockPasswordInput = document.getElementById("lock-password");
+var lockVerifyInput = document.getElementById("lock-verify-password");
+var lockVerifyError = document.getElementById("lock-verify-password-error");
+var lockMessage = document.getElementById("lockMessage");
+var lockButton = document.getElementById("LockButton");
 
-lockFileInput.addEventListener("change", () => {
-    const file = lockFileInput.files[0];
-    if (file) {
-        renderFilePreview(lockPreview, file);
+lockVerifyInput.addEventListener("input", function() {
+    var passwordsDoNotMatch = lockVerifyInput.value.length > 0 && lockVerifyInput.value !== lockPasswordInput.value;
+
+    if (passwordsDoNotMatch) {
+        lockVerifyError.hidden = false;
+        lockVerifyInput.setAttribute("aria-invalid", "true");
     } else {
-        clearPreview(lockPreview);
+        lockVerifyError.hidden = true;
+        lockVerifyInput.setAttribute("aria-invalid", "false");
     }
 });
 
-lockVerifyInput.addEventListener("input", () => {
-    const mismatch = lockVerifyInput.value.length > 0 && lockVerifyInput.value !== lockPasswordInput.value;
-    lockVerifyError.hidden = !mismatch;
-    lockVerifyInput.setAttribute("aria-invalid", mismatch ? "true" : "false");
-});
-
-lockForm.addEventListener("reset", () => {
-    clearPreview(lockPreview);
-    lockVerifyError.hidden = true;
-    setStatus(lockMessage, "Awaiting lock...");
-});
-
-lockForm.addEventListener("submit", async (event) => {
+lockForm.addEventListener("submit", async function(event) {
+    
+    // stop the form from trying to send the file to a server
     event.preventDefault();
 
-    const file = lockFileInput.files[0];
-    const password = lockPasswordInput.value;
-    const verifyPassword = lockVerifyInput.value;
+    var file = lockFileInput.files[0];
+    var password = lockPasswordInput.value;
+    var verifyPassword = lockVerifyInput.value;
 
     if (!file) {
         setStatus(lockMessage, "Please choose a file first.", "error");
@@ -252,48 +79,32 @@ lockForm.addEventListener("submit", async (event) => {
     setStatus(lockMessage, "Locking your file, please wait...");
 
     try {
-        const lockedBlob = await lockFile(file, password);
-        const lockedName = file.name + ".locked";
+        var lockedBlob = await lockFile(file, password);
+        var lockedName = file.name + ".locked";
 
         downloadBlob(lockedBlob, lockedName);
-        renderFilePreview(lockPreview, file, "Locked and downloaded as " + lockedName);
         setStatus(lockMessage, "File locked and downloaded as " + lockedName + ".", "success");
     } catch (err) {
         console.error(err);
         setStatus(lockMessage, "Something went wrong while locking the file.", "error");
-    } finally {
-        lockButton.disabled = false;
     }
+
+    lockButton.disabled = false;
 });
 
 // Remove Lock from File section
 
-const unlockForm = document.getElementById("remove-lock-form");
-const unlockFileInput = document.getElementById("unlock-file");
-const unlockPasswordInput = document.getElementById("unlock-password");
-const unlockMessage = document.getElementById("unlockMessage");
-const unlockPreview = document.getElementById("unlock-preview");
-const unlockButton = document.getElementById("UnlockButton");
+var unlockForm = document.getElementById("remove-lock-form");
+var unlockFileInput = document.getElementById("unlock-file");
+var unlockPasswordInput = document.getElementById("unlock-password");
+var unlockMessage = document.getElementById("unlockMessage");
+var unlockButton = document.getElementById("UnlockButton");
 
-unlockFileInput.addEventListener("change", () => {
-    const file = unlockFileInput.files[0];
-    if (file) {
-        renderFilePreview(unlockPreview, file);
-    } else {
-        clearPreview(unlockPreview);
-    }
-});
-
-unlockForm.addEventListener("reset", () => {
-    clearPreview(unlockPreview);
-    setStatus(unlockMessage, "Awaiting unlock...");
-});
-
-unlockForm.addEventListener("submit", async (event) => {
+unlockForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    const file = unlockFileInput.files[0];
-    const password = unlockPasswordInput.value;
+    var file = unlockFileInput.files[0];
+    var password = unlockPasswordInput.value;
 
     if (!file) {
         setStatus(unlockMessage, "Please choose a .locked file first.", "error");
@@ -304,15 +115,193 @@ unlockForm.addEventListener("submit", async (event) => {
     setStatus(unlockMessage, "Unlocking your file, please wait...");
 
     try {
-        const { blob, name } = await unlockFile(file, password);
+        var unlockedResult = await unlockFile(file, password);
 
-        downloadBlob(blob, name);
-        renderFilePreview(unlockPreview, file, "Unlocked and downloaded as " + name);
-        setStatus(unlockMessage, "File unlocked and downloaded as " + name + ".", "success");
+        downloadBlob(unlockedResult.blob, unlockedResult.name);
+        setStatus(unlockMessage, "File unlocked and downloaded as " + unlockedResult.name + ".", "success");
     } catch (err) {
         console.error(err);
         setStatus(unlockMessage, err.message || "Something went wrong while unlocking the file.", "error");
-    } finally {
-        unlockButton.disabled = false;
     }
+
+    unlockButton.disabled = false;
 });
+
+// Client-side file locking / unlocking logic with the use of the native Web Crypto API.
+//
+// FULL DISCLOSURE: This chunk of JavaScript code starting below was written with MAJOR assistance by Anthropic's Claude AI,
+// which greatly helped establish the structure and logic of the Lock File and Unlock File feature.
+// The code was then reviewed and tested by the group to ensure it links to the HTML and CSS files correctly,
+// and that it works as intended.
+//
+// Note: instead of using JSON to save the salt/iv/data together, everything is combined
+// together into one plain text string, with a new line between each piece. That way it is
+// easy to read and put back together with .split("\n") later on.
+
+var LOCK_FILE_HEADER = "FileSecureCrypt-locked-v1";
+
+// Turns bytes (like a salt, an iv, or encrypted data) into plain text
+// so it can be saved inside a normal text file.
+function bufferToBase64(buffer) {
+    var binaryText = "";
+    var bytes = new Uint8Array(buffer);
+
+    for (var i = 0; i < bytes.length; i++) {
+        binaryText = binaryText + String.fromCharCode(bytes[i]);
+    }
+
+    return btoa(binaryText);
+}
+
+// Does the opposite of bufferToBase64 - turns the plain text back into bytes.
+function base64ToBuffer(base64Text) {
+    var binaryText = atob(base64Text);
+    var bytes = new Uint8Array(binaryText.length);
+
+    for (var i = 0; i < binaryText.length; i++) {
+        bytes[i] = binaryText.charCodeAt(i);
+    }
+
+    return bytes.buffer;
+}
+
+// Key derivation
+
+// Turns a plain-text password into an AES-GCM CryptoKey.
+// The same password + same salt will always produce the same key,
+// which is how we're able to re-derive it later to unlock the file.
+async function deriveKeyFromPassword(password, saltBytes) {
+    var encoder = new TextEncoder();
+
+    var passwordKey = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(password),
+        "PBKDF2",
+        false,
+        ["deriveKey"]
+    );
+
+    var derivedKey = await crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt: saltBytes,
+            iterations: 250000,
+            hash: "SHA-256"
+        },
+        passwordKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+    );
+
+    return derivedKey;
+}
+
+// Lock (encrypt)
+
+async function lockFile(file, password) {
+    var fileBuffer = await file.arrayBuffer();
+
+    // Random salt (for key derivation) and IV (for the cipher) - both
+    // need to be unique per file, and both are safe to store alongside
+    // the encrypted data (they aren't secret, only the password is).
+    var salt = crypto.getRandomValues(new Uint8Array(16));
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+
+    var key = await deriveKeyFromPassword(password, salt);
+
+    var encryptedBuffer = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        fileBuffer
+    );
+
+    // put the original file name/type and the encrypted data into one
+    // plain text file, with each piece separated by a new line.
+    var originalName = file.name;
+    var originalType = file.type || "application/octet-stream";
+    var saltText = bufferToBase64(salt);
+    var ivText = bufferToBase64(iv);
+    var dataText = bufferToBase64(encryptedBuffer);
+
+    var lockedFileText =
+        LOCK_FILE_HEADER + "\n" +
+        originalName + "\n" +
+        originalType + "\n" +
+        saltText + "\n" +
+        ivText + "\n" +
+        dataText;
+
+    return new Blob([lockedFileText], { type: "text/plain" });
+}
+
+// Unlock (decrypt)
+
+async function unlockFile(file, password) {
+    var lockedFileText = await file.text();
+
+    // split the plain text file back into the pieces we saved earlier
+    var lines = lockedFileText.split("\n");
+
+    if (lines.length !== 6 || lines[0] !== LOCK_FILE_HEADER) {
+        throw new Error("That doesn't look like a valid .locked file.");
+    }
+
+    var originalName = lines[1];
+    var originalType = lines[2];
+    var saltText = lines[3];
+    var ivText = lines[4];
+    var dataText = lines[5];
+
+    var salt = new Uint8Array(base64ToBuffer(saltText));
+    var iv = new Uint8Array(base64ToBuffer(ivText));
+    var encryptedBuffer = base64ToBuffer(dataText);
+
+    var key = await deriveKeyFromPassword(password, salt);
+
+    var decryptedBuffer;
+    try {
+        decryptedBuffer = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: iv },
+            key,
+            encryptedBuffer
+        );
+    } catch (err) {
+        throw new Error("Incorrect password, or the file is corrupted.");
+    }
+
+    var unlockedBlob = new Blob([decryptedBuffer], { type: originalType || "application/octet-stream" });
+
+    return {
+        blob: unlockedBlob,
+        name: originalName || "unlocked-file"
+    };
+}
+
+// Small UI helper
+
+// Makes the browser download a Blob as a file, using the given file name.
+function downloadBlob(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
+// Updates one of the status messages on the page, and colors it
+// green for success or red for error.
+function setStatus(el, text, statusType) {
+    el.textContent = "Status: " + text;
+    el.classList.remove("status-success", "status-error");
+
+    if (statusType === "success") {
+        el.classList.add("status-success");
+    }
+    if (statusType === "error") {
+        el.classList.add("status-error");
+    }
+}

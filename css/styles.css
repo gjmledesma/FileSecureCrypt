@@ -15,8 +15,8 @@
     --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
     /* Layout */
-    --content-width: 700px;
-    --radius: 6px;
+    --content-width: auto;
+    --radius: 10px;
 }
 
 * {
@@ -88,31 +88,44 @@ select:focus-visible {
 }
 
 .site-header {
+    width: 100%;
+    background-color: var(--panel);
+    border-bottom: 1px solid var(--hairline);
+}
+
+.site-header-inner {
     max-width: var(--content-width);
     margin: 0 auto;
-    padding: 48px 24px 8px;
-    text-align: left;
+    padding: 20px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 32px;
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 #heading {
-    font-size: 2rem;
+    font-size: 1.5rem;
     letter-spacing: -0.01em;
+    margin: 0;
 }
 
 .tagline {
     color: var(--muted);
-    font-size: 1rem;
+    font-size: 0.85rem;
     margin: 0;
 }
 
 #nav {
-    max-width: var(--content-width);
-    margin: 24px auto 0;
-    padding: 0 24px 16px;
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 24px;
-    border-bottom: 1px solid var(--hairline);
+    gap: 4px 20px;
 }
 
 #nav a {
@@ -130,10 +143,15 @@ select:focus-visible {
     border-bottom-color: var(--signal);
 }
 
+#nav a[aria-current="page"] {
+    color: var(--paper);
+    border-bottom-color: var(--signal);
+}
+
 main {
     max-width: var(--content-width);
     margin: 0 auto;
-    padding: 0 24px 80px;
+    padding: 0 24px 15px;
 }
 
 #intro {
@@ -148,7 +166,7 @@ main {
 
 #intro p {
     color: var(--muted);
-    max-width: 62ch;
+    max-width: auto;
 }
 
 .tool-panel {
@@ -157,6 +175,17 @@ main {
     border-radius: var(--radius);
     padding: 28px 28px 32px;
     margin-bottom: 24px;
+}
+
+.panel-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.panel-pair .tool-panel {
+    margin-bottom: 0;
 }
 
 .tool-panel h2 {
@@ -271,6 +300,7 @@ input:user-invalid {
 
 .form-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     margin-top: 24px;
 }
@@ -354,78 +384,10 @@ td a:focus-visible {
     text-decoration: underline;
 }
 
-.preview-area {
-    margin-top: 28px;
-    padding-top: 20px;
-    border-top: 1px solid var(--hairline);
-}
-
-.preview-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 10px;
-}
-
-.file-preview {
-    border: 1px dashed var(--hairline);
-    border-radius: var(--radius);
-    min-height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-}
-
-.file-preview .empty-state {
-    color: var(--muted);
-    font-size: 0.85rem;
-    margin: 0;
-}
-
-.file-preview .file-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-    text-align: center;
-}
-
-.file-preview .preview-thumb {
-    max-width: 100%;
-    max-height: 160px;
-    border-radius: 4px;
-    object-fit: contain;
-}
-
-.file-preview .file-name {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--paper);
-    word-break: break-all;
-}
-
-.file-preview .file-meta {
-    font-size: 0.75rem;
-    color: var(--muted);
-}
-
-.file-preview .file-warning {
-    font-size: 0.72rem;
-    color: var(--danger);
-}
-
-.file-preview .lock-result {
-    font-size: 0.8rem;
-    color: var(--signal);
-    font-weight: 600;
-}
-
 footer {
     max-width: var(--content-width);
     margin: 0 auto;
-    padding: 24px 24px 48px;
+    padding: 24px 24px 28px;
     border-top: 1px solid var(--hairline);
 }
 
@@ -436,8 +398,14 @@ footer p {
 }
 
 @media (max-width: 600px) {
-    .site-header {
-        padding-top: 32px;
+    .site-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 18px;
+    }
+
+    .panel-pair {
+        grid-template-columns: 1fr;
     }
 
     .tool-panel {
