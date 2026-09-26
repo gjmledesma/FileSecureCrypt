@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 :root {
-    --ink: #f3f8f8;
-    --panel: #c4d8ec;
+    --ink: #fdfdf8;
+    --panel: #e4f3ee;
     --hairline: #c4cbd6;
     --paper: #152b44;
     --muted: #8d97a6;
@@ -89,7 +89,7 @@ select:focus-visible {
 
 .site-header {
     width: 100%;
-    background-color: var(--panel);
+    background-color: rgba(234, 234, 247, 0.753);
     border-bottom: 1px solid var(--hairline);
 }
 
@@ -175,6 +175,37 @@ main {
     border-radius: var(--radius);
     padding: 28px 28px 32px;
     margin-bottom: 24px;
+}
+
+.works-tool-panel {
+    background-color: rgb(236, 235, 250);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 28px 28px 32px;
+    margin-bottom: 24px;
+}
+
+.panel-pair .works-tool-panel {
+    margin-bottom: 0;
+}
+
+.works-tool-panel h2 {
+    font-size: 1.25rem;
+}
+
+.works-tool-panel > p {
+    color: var(--muted);
+    max-width: 58ch;
+}
+
+.works-tool-panel ul {
+    margin: 0 0 1em;
+    padding-left: 1.25em;
+    color: var(--paper);
+}
+
+.works-tool-panel li {
+    margin-bottom: 4px;
 }
 
 .panel-pair {
@@ -387,7 +418,7 @@ td a:focus-visible {
 footer {
     max-width: var(--content-width);
     margin: 0 auto;
-    padding: 24px 24px 28px;
+    padding: 24px 28px 28px;
     border-top: 1px solid var(--hairline);
 }
 
