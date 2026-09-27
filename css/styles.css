@@ -104,16 +104,14 @@ select:focus-visible {
     gap: 10px 32px;
 }
 
-.brand {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+.brand h1 {
+    margin: 3;
 }
 
-#heading {
-    font-size: 1.5rem;
-    letter-spacing: -0.01em;
-    margin: 0;
+.brand h1 img {
+    max-height: 47px; 
+    width: auto;
+    display: block;
 }
 
 .tagline {
