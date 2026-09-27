@@ -39,6 +39,7 @@
                     <div class="form-field">
                         <label for="lock-file">Choose a file to lock</label>
                         <input type="file" id="lock-file" name="secure-file" required>
+                        <small id="lock-password-hint" class="hint">Supports .jpg, .png, .txt, .pdf, .docx files.</small>
                     </div>
 
                     <div class="form-field">
@@ -51,7 +52,7 @@
                             autocomplete="new-password"
                             aria-describedby="lock-password-hint"
                             required>
-                        <small id="lock-password-hint" class="hint">At least 8 characters.</small>
+                        <small id="lock-password-hint" class="hint">Set at least 8 characters.</small>
                     </div>
 
                     <div class="form-field">
@@ -88,6 +89,7 @@
                     <div class="form-field">
                         <label for="unlock-file">Choose a file to unlock</label>
                         <input type="file" id="unlock-file" name="secure-file" accept=".locked" required>
+                        <small id="lock-password-hint" class="hint">Upload a .locked file.</small>
                     </div>
 
                     <div class="form-field">
@@ -98,6 +100,7 @@
                             name="password"
                             autocomplete="current-password"
                             required>
+                        <small id="lock-password-hint" class="hint">Type the password used to initially lock the file.</small>
                     </div>
 
                     <div class="form-actions">
