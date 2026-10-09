@@ -1,0 +1,24 @@
+{
+  "name": "filesecurecrypt",
+  "version": "1.0.0",
+  "description": "A browser-based application that lets users have the ability to secure their images or documents with a file lock encryption feature.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gjmledesma/FileSecureCrypt.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gjmledesma/FileSecureCrypt/issues"
+  },
+  "homepage": "https://github.com/gjmledesma/FileSecureCrypt#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
