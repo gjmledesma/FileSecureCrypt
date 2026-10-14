@@ -17,12 +17,14 @@ document.getElementById("UnlockButton").onclick = function() {
 document.getElementById("LockClearButton").onclick = function() {
     document.getElementById("lockMessage").textContent =
         "Status: Awaiting lock. Proceed in selecting a file and entering a password to lock the file.";
+    document.getElementById("lock-indicator").className = "status-indicator";
 }
 
 // Clicking "Clear" button in Remove Lock from File feature
 document.getElementById("UnlockClearButton").onclick = function() {
     document.getElementById("unlockMessage").textContent =
         "Status: Awaiting unlock. Proceed in selecting a .locked file and entering the password to unlock the file.";
+    document.getElementById("unlock-indicator").className = "status-indicator";
 }
 
 // Expanded status message updates for the Lock File and Remove Lock from File features,
@@ -42,6 +44,7 @@ var lockVerifyInput = document.getElementById("lock-verify-password");
 var lockVerifyError = document.getElementById("lock-verify-password-error");
 var lockMessage = document.getElementById("lockMessage");
 var lockButton = document.getElementById("LockButton");
+var lockIndicator = document.getElementById("lock-indicator");
 var lockHistoryList = document.getElementById("lock-history-list");
 
 lockVerifyInput.addEventListener("input", function() {
@@ -66,31 +69,31 @@ lockForm.addEventListener("submit", async function(event) {
     var verifyPassword = lockVerifyInput.value;
 
     if (!file) {
-        setStatus(lockMessage, "Please choose a file first.", "error");
+        setStatus(lockMessage, "Please choose a file first.", "error", lockIndicator);
         return;
     }
 
     if (password !== verifyPassword) {
         lockVerifyError.hidden = false;
-        setStatus(lockMessage, "Passwords do not match.", "error");
+        setStatus(lockMessage, "Passwords do not match.", "error", lockIndicator);
         return;
     }
 
     lockButton.disabled = true;
-    setStatus(lockMessage, "Locking your file, please wait...");
+    setStatus(lockMessage, "Locking your file, please wait...", "loading", lockIndicator);
 
     try {
         var lockedBlob = await lockFile(file, password);
         var lockedName = file.name + ".locked";
 
         downloadBlob(lockedBlob, lockedName);
-        setStatus(lockMessage, "File locked and downloaded as " + lockedName + ".", "success");
+        setStatus(lockMessage, "File locked and downloaded as " + lockedName + ".", "success", lockIndicator);
 
         await saveLockHistory(file.name);
         await loadLockHistory();
     } catch (err) {
         console.error(err);
-        setStatus(lockMessage, "Something went wrong while locking the file.", "error");
+        setStatus(lockMessage, "Something went wrong while locking the file.", "error", lockIndicator);
     }
 
     lockButton.disabled = false;
@@ -103,6 +106,7 @@ var unlockFileInput = document.getElementById("unlock-file");
 var unlockPasswordInput = document.getElementById("unlock-password");
 var unlockMessage = document.getElementById("unlockMessage");
 var unlockButton = document.getElementById("UnlockButton");
+var unlockIndicator = document.getElementById("unlock-indicator");
 
 unlockForm.addEventListener("submit", async function(event) {
     event.preventDefault();
@@ -111,21 +115,21 @@ unlockForm.addEventListener("submit", async function(event) {
     var password = unlockPasswordInput.value;
 
     if (!file) {
-        setStatus(unlockMessage, "Please choose a .locked file first.", "error");
+        setStatus(unlockMessage, "Please choose a .locked file first.", "error", unlockIndicator);
         return;
     }
 
     unlockButton.disabled = true;
-    setStatus(unlockMessage, "Unlocking your file, please wait...");
+    setStatus(unlockMessage, "Unlocking your file, please wait...", "loading", unlockIndicator);
 
     try {
         var unlockedResult = await unlockFile(file, password);
 
         downloadBlob(unlockedResult.blob, unlockedResult.name);
-        setStatus(unlockMessage, "File unlocked and downloaded as " + unlockedResult.name + ".", "success");
+        setStatus(unlockMessage, "File unlocked and downloaded as " + unlockedResult.name + ".", "success", unlockIndicator);
     } catch (err) {
         console.error(err);
-        setStatus(unlockMessage, err.message || "Something went wrong while unlocking the file.", "error");
+        setStatus(unlockMessage, err.message || "Something went wrong while unlocking the file.", "error", unlockIndicator);
     }
 
     unlockButton.disabled = false;
@@ -209,7 +213,6 @@ function bufferToBase64(buffer) {
     return btoa(binaryText);
 }
 
-// Does the opposite of bufferToBase64 - turns the plain text back into bytes.
 function base64ToBuffer(base64Text) {
     var binaryText = atob(base64Text);
     var bytes = new Uint8Array(binaryText.length);
@@ -222,10 +225,6 @@ function base64ToBuffer(base64Text) {
 }
 
 // Key derivation
-
-// Turns a plain-text password into an AES-GCM CryptoKey.
-// The same password + same salt will always produce the same key,
-// which is how we're able to re-derive it later to unlock the file.
 async function deriveKeyFromPassword(password, saltBytes) {
     var encoder = new TextEncoder();
 
@@ -349,8 +348,10 @@ function downloadBlob(blob, filename) {
 }
 
 // Updates one of the status messages on the page, and colors it
-// green for success or red for error.
-function setStatus(el, text, statusType) {
+// green for success or red for error. If an indicator element is
+// given too, it also shows a spinner (loading), a checkmark
+// (success), or a crossed-out mark (error) next to the message.
+function setStatus(el, text, statusType, indicatorEl) {
     el.textContent = "Status: " + text;
     el.classList.remove("status-success", "status-error");
 
@@ -359,5 +360,25 @@ function setStatus(el, text, statusType) {
     }
     if (statusType === "error") {
         el.classList.add("status-error");
+    }
+
+    if (indicatorEl) {
+        setIndicator(indicatorEl, statusType);
+    }
+}
+
+// Swaps an indicator span to show either a loading spinner, a
+// checkmark, a crossed-out mark, or nothing at all.
+function setIndicator(indicatorEl, state) {
+    indicatorEl.className = "status-indicator";
+
+    if (state === "loading") {
+        indicatorEl.classList.add("is-loading");
+    }
+    if (state === "success") {
+        indicatorEl.classList.add("is-success");
+    }
+    if (state === "error") {
+        indicatorEl.classList.add("is-error");
     }
 }
