@@ -72,7 +72,11 @@ lockForm.addEventListener("submit", async function(event) {
         setStatus(lockMessage, "Please choose a file first.", "error", lockIndicator);
         return;
     }
-
+var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.txt|\.pdf|\.docx)$/i;
+    if (!allowedExtensions.exec(file.name)) {
+        setStatus(lockMessage, "Unsupported file format selected. Please upload JPG, PNG, TXT, PDF, or DOCX.", "error", lockIndicator);
+        return; 
+    }
     if (password !== verifyPassword) {
         lockVerifyError.hidden = false;
         setStatus(lockMessage, "Passwords do not match.", "error", lockIndicator);
