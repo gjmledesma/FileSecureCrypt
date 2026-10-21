@@ -70,20 +70,24 @@ lockForm.addEventListener("submit", async function(event) {
 
     if (!file) {
         setStatus(lockMessage, "Please choose a file first.", "error", lockIndicator);
+        lockFileInput.focus();
         return;
     }
 var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.txt|\.pdf|\.docx)$/i;
     if (!allowedExtensions.exec(file.name)) {
         setStatus(lockMessage, "Unsupported file format selected. Please upload JPG, PNG, TXT, PDF, or DOCX.", "error", lockIndicator);
+        lockFileInput.focus();
         return; 
     }
     if (password !== verifyPassword) {
         lockVerifyError.hidden = false;
         setStatus(lockMessage, "Passwords do not match.", "error", lockIndicator);
+        lockVerifyInput.focus();
         return;
     }
 
     lockButton.disabled = true;
+    lockButton.textContent = "Processing...";
     setStatus(lockMessage, "Locking your file, please wait...", "loading", lockIndicator);
 
     try {
@@ -98,6 +102,10 @@ var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.txt|\.pdf|\.docx)$/i;
     } catch (err) {
         console.error(err);
         setStatus(lockMessage, "Something went wrong while locking the file.", "error", lockIndicator);
+        } finally {
+        lockButton.disabled = false;
+        lockButton.textContent = "Lock File";
+    }
     }
 
     lockButton.disabled = false;
@@ -120,10 +128,12 @@ unlockForm.addEventListener("submit", async function(event) {
 
     if (!file) {
         setStatus(unlockMessage, "Please choose a .locked file first.", "error", unlockIndicator);
+         unlockFileInput.focus();
         return;
     }
 
     unlockButton.disabled = true;
+    unlockButton.textContent = "Processing...";
     setStatus(unlockMessage, "Unlocking your file, please wait...", "loading", unlockIndicator);
 
     try {
@@ -134,9 +144,11 @@ unlockForm.addEventListener("submit", async function(event) {
     } catch (err) {
         console.error(err);
         setStatus(unlockMessage, err.message || "Something went wrong while unlocking the file.", "error", unlockIndicator);
+         } finally {
+         unlockButton.disabled = false;
+         unlockButton.textContent = "Unlock File";
     }
 
-    unlockButton.disabled = false;
 });
 
 // Locked-file history
