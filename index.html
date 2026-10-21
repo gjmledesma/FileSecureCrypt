@@ -71,14 +71,14 @@
                     </div>
 
                     <div class="form-actions">
-                        <button id="LockButton" type="submit">Lock File</button>
-                        <button id="LockClearButton" type="reset" class="secondary">Clear</button>
+                        <button id="UnlockButton" type="submit" aria-label="Unlock and download selected file">Unlock File</button>
+                        <button id="LockClearButton" type="reset" class="secondary" aria-label="Clear lock form">Clear</button>
                     </div>
                 </form>
 
                 <div class="FileStatusMessage">
                     <span id="lock-indicator" class="status-indicator" aria-hidden="true"></span>
-                    <p id="lockMessage" role="status">Status: Awaiting lock...</p>
+                   <p id="lockMessage" role="status" aria-live="polite">Status: Awaiting lock...</p>
                 </div>
             </section> 
 
@@ -107,14 +107,14 @@
                     </div>
 
                     <div class="form-actions">
-                        <button id="UnlockButton" type="submit">Unlock File</button>
+                        <button id="UnlockButton" type="submit" aria-label="Unlock and download selected file">Unlock File</button>
                         <button id="UnlockClearButton" type="reset" class="secondary">Clear</button>
                     </div>
                 </form>
 
                 <div class="FileStatusMessage">
                     <span id="unlock-indicator" class="status-indicator" aria-hidden="true"></span>
-                    <p id="unlockMessage" role="status">Status: Awaiting unlock...</p>
+                   <p id="unlockMessage" role="status" aria-live="polite">Status: Awaiting unlock...</p>
                 </div>
             </section>
         </div>
