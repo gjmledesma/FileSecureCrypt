@@ -106,9 +106,6 @@ var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.txt|\.pdf|\.docx)$/i;
         lockButton.disabled = false;
         lockButton.textContent = "Lock File";
     }
-    }
-
-    lockButton.disabled = false;
 });
 
 // Remove Lock from File section
