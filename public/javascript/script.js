@@ -395,3 +395,44 @@ function setIndicator(indicatorEl, state) {
         indicatorEl.classList.add("is-error");
     }
 }
+
+async function loadLockHistory() {
+  const list = document.getElementById('lock-history-list');
+  if (!list) return;
+
+  try {
+    const res = await fetch('/api/lock-history');
+    if (!res.ok) throw new Error('Request failed');
+    const history = await res.json();
+
+    list.innerHTML = '';
+
+    if (!history.length) {
+      list.innerHTML = '<li class="empty-state">No local files locked yet.</li>';
+      return;
+    }
+
+    history.slice().reverse().forEach(entry => {   // newest first
+      const li = document.createElement('li');
+      li.textContent = `${entry.fileName} — locked on ${new Date(entry.lockedAt).toLocaleString()}`;
+      list.appendChild(li);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function saveToHistory(fileName) {
+  try {
+    await fetch('/api/lock-history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName })
+    });
+    await loadLockHistory();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadLockHistory);
